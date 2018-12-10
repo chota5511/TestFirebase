@@ -29,6 +29,7 @@ import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         LinearLayout postArea = findViewById(R.id.post_area);
 
         for (int i = 0; i<10; i++){
-            Post p = new Post("chota5511", "6/2/1997", String.valueOf(i));
+            Post p = new Post("chota5511", Calendar.getInstance().getTime(), String.valueOf(i));
 
             postArea.addView(PostToPostBox(p,postArea), 0);
         }
@@ -71,13 +72,14 @@ public class MainActivity extends AppCompatActivity
     public View PostToPostBox(Post _post, LinearLayout _rootLayout){
         LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         TextView userName = view.findViewById(R.id.user_name);
         TextView date = view.findViewById(R.id.date);
         TextView content = view.findViewById(R.id.content);
 
         userName.setText(_post.getUserEmail());
-        date.setText(_post.getDate());
+        date.setText(dateFormat.format(_post.getDate()));
         content.setText(_post.getContent());
 
         return view;
@@ -85,6 +87,8 @@ public class MainActivity extends AppCompatActivity
 
     public void AddPost(View v){
         Toast.makeText(getApplicationContext(),"Add new post",Toast.LENGTH_SHORT).show();
+        Intent addPost = new Intent(this,AddPostActivity.class);
+        startActivity(addPost);
     }
 
     public void ShowProfile(View v){

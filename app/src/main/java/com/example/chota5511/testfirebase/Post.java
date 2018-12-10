@@ -2,12 +2,13 @@ package com.example.chota5511.testfirebase;
 
 import android.widget.LinearLayout;
 import com.google.firebase.database.*;
+
 import java.util.Date;
 
 public class Post {
     private String postID;
     private String userEmail;
-    private String date;
+    private Date date;
     private String content;
 
     private DatabaseReference db = FirebaseDatabase.getInstance().getReference("post");
@@ -16,13 +17,13 @@ public class Post {
     public Post(){
         postID = new String();
         userEmail = new String();
-        date = new String();
+        date = new Date();
         content = new String();
     }
-    public Post(String _userEmail,String _date,String _content){
+    public Post(String _userEmail,Date _date,String _content){
         postID = new String();
         userEmail = new String();
-        date = new String();
+        date = new Date();
         content = new String();
 
         setUserEmail(_userEmail);
@@ -32,7 +33,7 @@ public class Post {
     public Post(Post _post){
         postID = new String();
         userEmail = new String();
-        date = new String();
+        date = new Date();
         content = new String();
 
         setPostID(_post.getPostID());
@@ -64,10 +65,10 @@ public class Post {
     }
 
     //Getter and Setter Date
-    public void setDate(String _date){
+    public void setDate(Date _date){
         date = _date;
     }
-    public String getDate(){
+    public Date getDate(){
         return date;
     }
 
@@ -81,13 +82,13 @@ public class Post {
 
     //Save post to database return true if success or false if failed
     public boolean SaveChange(){
-        if(userEmail.isEmpty()==false&&date.isEmpty()==false&&content.isEmpty()==false){
-            if(userEmail.isEmpty() == true){
-                setUserEmail(db.push().getKey());
+        if(userEmail.isEmpty()==false&&date != null&&content.isEmpty()==false){
+            if(postID.isEmpty() == true){
+                setPostID(db.push().getKey());
             }
             db.child(getPostID()).child("user_email").setValue(getUserEmail());
             db.child(getPostID()).child("date").setValue(getDate());
-            db.child(getUserEmail()).child("content").setValue(getContent());
+            db.child(getPostID()).child("content").setValue(getContent());
             return true;
         }
         return false;

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="10pt"
+    android:paddingEnd="10pt"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".LoginActivity"
+    tools:showIn="@layout/activity_login">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10pt"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/colorGray">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="User ID"
+            android:textColor="@color/colorWhite"/>
+        <EditText
+            android:id="@+id/user_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:singleLine="true"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textColor="@color/colorWhite"/>
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:password="true"
+            android:textColor="@color/colorWhite"
+            android:singleLine="true"/>
+        <Button
+            android:id="@+id/login"
+            android:text="Login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:textColor="@color/colorWhite"
+            android:onClick="Login"/>
+        <TextView
+            android:id="@+id/forgot_password"
+            android:text="FORGOT PASSWORD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorGray"
+            android:textColor="@color/colorWhite"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_marginTop="10pt"
+            android:onClick="ForgotPassword"/>
+    </LinearLayout>
+
+
+</LinearLayout>

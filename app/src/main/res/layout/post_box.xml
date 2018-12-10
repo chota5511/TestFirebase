@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorGray"
+    android:orientation="vertical"
+    android:layout_marginTop="24px"
+    android:layout_marginStart="24px"
+    android:layout_marginEnd="24px">
+
+    <TextView
+        android:id="@+id/user_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:layout_marginStart="6sp"
+        android:layout_marginTop="6sp"
+        android:onClick="ShowProfile"/>
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6sp"
+        android:layout_marginTop="1sp"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="@color/colorWhite" />
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6sp"
+        android:text=""/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20pt"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/like_button"
+            android:layout_width="224px"
+            android:layout_height="match_parent"
+            style="?android:borderlessButtonStyle"
+            android:background="?android:attr/dividerHorizontal"
+            android:text="@string/like_button" />
+        <Button
+            android:id="@+id/comment_button"
+            android:layout_width="224px"
+            android:layout_height="match_parent"
+            style="?android:borderlessButtonStyle"
+            android:background="?android:attr/dividerHorizontal"
+            android:text="@string/comment_button"/>
+        <Button
+            android:id="@+id/share_button"
+            android:layout_width="224px"
+            android:layout_height="match_parent"
+            style="?android:borderlessButtonStyle"
+            android:background="?android:attr/dividerHorizontal"
+            android:text="@string/share_button"/>
+
+    </LinearLayout>
+</LinearLayout>

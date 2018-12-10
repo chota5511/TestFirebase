@@ -27,6 +27,10 @@
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddPostActivity"
+            android:label="@string/title_activity_add_post"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

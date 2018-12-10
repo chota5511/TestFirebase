@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Post {
     private String postID;
-    private String userID;
+    private String userEmail;
     private String date;
     private String content;
 
@@ -15,28 +15,28 @@ public class Post {
     //Constructor
     public Post(){
         postID = new String();
-        userID = new String();
+        userEmail = new String();
         date = new String();
         content = new String();
     }
-    public Post(String _userID,String _date,String _content){
+    public Post(String _userEmail,String _date,String _content){
         postID = new String();
-        userID = new String();
+        userEmail = new String();
         date = new String();
         content = new String();
 
-        setUserID(_userID);
+        setUserEmail(_userEmail);
         setDate(_date);
         setContent(_content);
     }
     public Post(Post _post){
         postID = new String();
-        userID = new String();
+        userEmail = new String();
         date = new String();
         content = new String();
 
         setPostID(_post.getPostID());
-        setUserID(_post.getUserID());
+        setUserEmail(_post.getUserEmail());
         setDate(_post.getDate());
         setContent(_post.getContent());
     }
@@ -50,17 +50,17 @@ public class Post {
     }
 
     //Setter and Getter User ID
-    public void setUserID(String _userID){
-        userID = _userID;
+    public void setUserEmail(String _userEmail){
+        userEmail = _userEmail;
     }
-    public String getUserID(){
-        return userID;
+    public String getUserEmail(){
+        return userEmail;
     }
 
     //Getter User Name
     public String getUserName(){
         DatabaseReference tmpDB = FirebaseDatabase.getInstance().getReference("post");
-        return tmpDB.child(getUserID()).child("username").getKey();
+        return tmpDB.child(getUserEmail()).child("username").getKey();
     }
 
     //Getter and Setter Date
@@ -81,13 +81,13 @@ public class Post {
 
     //Save post to database return true if success or false if failed
     public boolean SaveChange(){
-        if(userID.isEmpty()==false&&date.isEmpty()==false&&content.isEmpty()==false){
-            if(userID.isEmpty() == true){
-                setUserID(db.push().getKey());
+        if(userEmail.isEmpty()==false&&date.isEmpty()==false&&content.isEmpty()==false){
+            if(userEmail.isEmpty() == true){
+                setUserEmail(db.push().getKey());
             }
-            db.child(getPostID()).child("userid").setValue(getUserID());
+            db.child(getPostID()).child("user_email").setValue(getUserEmail());
             db.child(getPostID()).child("date").setValue(getDate());
-            db.child(getUserID()).child("content").setValue(getContent());
+            db.child(getUserEmail()).child("content").setValue(getContent());
             return true;
         }
         return false;

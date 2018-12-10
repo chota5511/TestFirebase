@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -21,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import org.w3c.dom.Text;
 
 import java.text.DateFormat;
@@ -30,7 +34,8 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    User userProfile = new User();
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    FirebaseUser user = auth.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (user == null){
+            Intent login = new Intent(this,LoginActivity.class);
+            startActivity(login);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -63,11 +72,11 @@ public class MainActivity extends AppCompatActivity
         LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
 
-        TextView userID = view.findViewById(R.id.user_id);
+        TextView userName = view.findViewById(R.id.user_name);
         TextView date = view.findViewById(R.id.date);
         TextView content = view.findViewById(R.id.content);
 
-        userID.setText(_post.getUserID());
+        userName.setText(_post.getUserEmail());
         date.setText(_post.getDate());
         content.setText(_post.getContent());
 
@@ -84,6 +93,7 @@ public class MainActivity extends AppCompatActivity
 
     public void Logout(MenuItem mi){
         Toast.makeText(getApplicationContext(),"Logout",Toast.LENGTH_SHORT).show();
+        auth.signOut();
         Intent tmp = new Intent(this,LoginActivity.class);
         startActivity(tmp);
     }

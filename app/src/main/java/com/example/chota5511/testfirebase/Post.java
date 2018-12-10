@@ -1,13 +1,13 @@
 package com.example.chota5511.testfirebase;
 
-import android.widget.LinearLayout;
+import android.support.annotation.NonNull;
 import com.google.firebase.database.*;
 
 import java.util.Date;
 
 public class Post {
     private String postID;
-    private String userEmail;
+    private String userUid;
     private Date date;
     private String content;
 
@@ -16,28 +16,28 @@ public class Post {
     //Constructor
     public Post(){
         postID = new String();
-        userEmail = new String();
+        userUid = new String();
         date = new Date();
         content = new String();
     }
-    public Post(String _userEmail,Date _date,String _content){
+    public Post(String _userUid,Date _date,String _content){
         postID = new String();
-        userEmail = new String();
+        userUid = new String();
         date = new Date();
         content = new String();
 
-        setUserEmail(_userEmail);
+        setUserUid(_userUid);
         setDate(_date);
         setContent(_content);
     }
     public Post(Post _post){
         postID = new String();
-        userEmail = new String();
+        userUid = new String();
         date = new Date();
         content = new String();
 
         setPostID(_post.getPostID());
-        setUserEmail(_post.getUserEmail());
+        setUserUid(_post.getUserUid());
         setDate(_post.getDate());
         setContent(_post.getContent());
     }
@@ -51,17 +51,11 @@ public class Post {
     }
 
     //Setter and Getter User ID
-    public void setUserEmail(String _userEmail){
-        userEmail = _userEmail;
+    public void setUserUid(String _userUid){
+        userUid = _userUid;
     }
-    public String getUserEmail(){
-        return userEmail;
-    }
-
-    //Getter User Name
-    public String getUserName(){
-        DatabaseReference tmpDB = FirebaseDatabase.getInstance().getReference("post");
-        return tmpDB.child(getUserEmail()).child("username").getKey();
+    public String getUserUid(){
+        return userUid;
     }
 
     //Getter and Setter Date
@@ -82,11 +76,11 @@ public class Post {
 
     //Save post to database return true if success or false if failed
     public boolean SaveChange(){
-        if(userEmail.isEmpty()==false&&date != null&&content.isEmpty()==false){
+        if(userUid.isEmpty()==false&&date != null&&content.isEmpty()==false){
             if(postID.isEmpty() == true){
                 setPostID(db.push().getKey());
             }
-            db.child(getPostID()).child("user_email").setValue(getUserEmail());
+            db.child(getPostID()).child("uid").setValue(getUserUid());
             db.child(getPostID()).child("date").setValue(getDate());
             db.child(getPostID()).child("content").setValue(getContent());
             return true;

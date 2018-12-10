@@ -2,6 +2,7 @@ package com.example.chota5511.testfirebase;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -38,7 +44,7 @@ public class AddPostActivity extends AppCompatActivity {
     public void AddPost(View v){
         EditText content = findViewById(R.id.et_content);
 
-        Post tmp = new Post(user.getEmail(),Calendar.getInstance().getTime(),content.getText().toString());
+        Post tmp = new Post(user.getUid(),Calendar.getInstance().getTime(),content.getText().toString());
 
         if(tmp.SaveChange()==true){
             Toast.makeText(getApplicationContext(),"Post success",Toast.LENGTH_SHORT);

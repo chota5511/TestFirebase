@@ -3,6 +3,8 @@ package com.example.chota5511.testfirebase;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Layout;
@@ -24,6 +26,12 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -37,6 +45,13 @@ public class MainActivity extends AppCompatActivity
 
     FirebaseAuth auth = FirebaseAuth.getInstance();
     FirebaseUser user = auth.getCurrentUser();
+    FirebaseDatabase db = FirebaseDatabase.getInstance();
+    ValueEventListener postValueEventListener;
+    ValueEventListener getUserNameValueEventListener;
+    Query queryRefInitial = db.getReference().child("post").orderByChild("date").limitToLast(20);
+    Query queryRef = db.getReference().child("post").orderByChild("date").limitToLast(1);
+    Query queryUserName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +59,56 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (user == null){
+
+        if (user.getUid() == null){
             Intent login = new Intent(this,LoginActivity.class);
             startActivity(login);
+        }else {
+
+            postValueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists() == true){
+                        for (DataSnapshot d: dataSnapshot.getChildren()){
+                            final Post tmpPost = new Post();
+                            tmpPost.setPostID(d.getKey());
+                            tmpPost.setUserUid(d.child("uid").getValue().toString());
+                            tmpPost.setContent(d.child("content").getValue().toString());
+                            tmpPost.setDate(d.child("date").getValue(Date.class));
+
+                            getUserNameValueEventListener = new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    LinearLayout postArea = findViewById(R.id.post_area);
+                                    postArea.addView(PostToPostBox(tmpPost,dataSnapshot.getValue().toString(),postArea),1);
+                                    queryUserName.removeEventListener(getUserNameValueEventListener);   //Remove listener after get user name
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            };
+
+                            //Get user name before add to post box
+                            queryUserName = FirebaseDatabase.getInstance().getReference().child("user").child(tmpPost.getUserUid());
+                            queryUserName.addListenerForSingleValueEvent(getUserNameValueEventListener);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+
+            //Initial Post
+            queryRefInitial.addListenerForSingleValueEvent(postValueEventListener);
+            queryRefInitial.removeEventListener(postValueEventListener);            //Remove initial listener event after initial
+
+            //Listener for database change
+            queryRef.addValueEventListener(postValueEventListener);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -57,19 +119,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
-        //Start code here
-        LinearLayout postArea = findViewById(R.id.post_area);
-
-        for (int i = 0; i<10; i++){
-            Post p = new Post("chota5511", Calendar.getInstance().getTime(), String.valueOf(i));
-
-            postArea.addView(PostToPostBox(p,postArea), 0);
-        }
     }
 
-    public View PostToPostBox(Post _post, LinearLayout _rootLayout){
+    public View PostToPostBox(Post _post, String _userName,LinearLayout _rootLayout){
         LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -78,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         TextView date = view.findViewById(R.id.date);
         TextView content = view.findViewById(R.id.content);
 
-        userName.setText(_post.getUserEmail());
+        userName.setText(_userName);
         date.setText(dateFormat.format(_post.getDate()));
         content.setText(_post.getContent());
 
@@ -89,6 +141,18 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(getApplicationContext(),"Add new post",Toast.LENGTH_SHORT).show();
         Intent addPost = new Intent(this,AddPostActivity.class);
         startActivity(addPost);
+    }
+
+    @Override
+    public  void onPause(){
+        super.onPause();
+        queryRef.removeEventListener(postValueEventListener);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        queryRef.addValueEventListener(postValueEventListener);
     }
 
     public void ShowProfile(View v){

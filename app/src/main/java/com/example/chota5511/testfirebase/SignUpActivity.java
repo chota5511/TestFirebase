@@ -17,10 +17,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
     FirebaseAuth auth = FirebaseAuth.getInstance();
+    FirebaseDatabase db = FirebaseDatabase.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,9 @@ public class SignUpActivity extends AppCompatActivity {
 
                     //Update user profile
                     user.updateProfile(userProfile);
+
+                    //Save user name to database
+                    db.getReference().child("user").child(user.getUid()).setValue(userName.getText().toString());
 
                     //return a success Toast message
                     Toast.makeText(getApplicationContext(),"Sign up success",Toast.LENGTH_SHORT).show();

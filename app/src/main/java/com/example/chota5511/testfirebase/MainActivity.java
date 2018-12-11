@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
             queryRefInitial.removeEventListener(postValueEventListener);            //Remove initial listener event after initial
 
             //Listener for database change
-            queryRef.addValueEventListener(postValueEventListener);
+            //queryRef.addValueEventListener(postValueEventListener);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -146,12 +146,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public  void onPause(){
         super.onPause();
+        //Remove Listener whenever this activity is paused
         queryRef.removeEventListener(postValueEventListener);
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        //Run this listener whenever this activity is on initial or resume state
         queryRef.addValueEventListener(postValueEventListener);
     }
 

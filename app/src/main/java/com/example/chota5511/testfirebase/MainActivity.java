@@ -39,6 +39,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     Query queryUserName;
 
 
+    //Override method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +62,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (user.getUid() == null){
+        if (user == null){
             Intent login = new Intent(this,LoginActivity.class);
             startActivity(login);
         }else {
-
             postValueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -121,61 +122,23 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    public View PostToPostBox(Post _post, String _userName,LinearLayout _rootLayout){
-        LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        TextView userName = view.findViewById(R.id.user_name);
-        TextView date = view.findViewById(R.id.date);
-        TextView content = view.findViewById(R.id.content);
-
-        userName.setText(_userName);
-        date.setText(dateFormat.format(_post.getDate()));
-        content.setText(_post.getContent());
-
-        return view;
-    }
-
-    public void AddPost(View v){
-        Toast.makeText(getApplicationContext(),"Add new post",Toast.LENGTH_SHORT).show();
-        Intent addPost = new Intent(this,AddPostActivity.class);
-        startActivity(addPost);
-    }
-
     @Override
     public  void onPause(){
         super.onPause();
         //Remove Listener whenever this activity is paused
-        queryRef.removeEventListener(postValueEventListener);
+        if(user != null){
+            queryRef.removeEventListener(postValueEventListener);
+        }
     }
 
     @Override
     public void onResume(){
         super.onResume();
         //Run this listener whenever this activity is on initial or resume state
-        queryRef.addValueEventListener(postValueEventListener);
+        if (user != null){
+            queryRef.addValueEventListener(postValueEventListener);
+        }
     }
-
-    public void ShowProfile(View v){
-        Toast.makeText(getApplicationContext(),"Show profile",Toast.LENGTH_SHORT).show();
-    }
-
-    public void Logout(MenuItem mi){
-        Toast.makeText(getApplicationContext(),"Logout",Toast.LENGTH_SHORT).show();
-        auth.signOut();
-        Intent tmp = new Intent(this,LoginActivity.class);
-        startActivity(tmp);
-    }
-
-    public void Refresh(MenuItem mi){
-        Toast.makeText(getApplicationContext(),"Refresh",Toast.LENGTH_SHORT).show();
-    }
-
-    public void Setting(MenuItem mi){
-        Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -200,17 +163,14 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_profile) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_logout) {
+            Logout();
+        } else if (id == R.id.nav_settings) {
+            Settings();
+        } else if (id == R.id.nav_message) {
 
         }
 
@@ -218,4 +178,78 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.action_logout:
+                Logout();
+                break;
+            case R.id.action_refresh:
+                Refresh();
+                break;
+            case R.id.action_settings:
+                Settings();
+                break;
+        }
+        return true;
+    }
+    ///<Override method end>
+
+
+    //Click Event
+    public void AddPost(View v){
+        AddPost();
+    }
+
+    public void ShowProfile(View v){
+        ShowProfile();
+    }
+    ///<Click Event end>
+
+
+    //Process method
+    public View PostToPostBox(Post _post, String _userName,LinearLayout _rootLayout){
+        LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        TextView userName = view.findViewById(R.id.user_name);
+        TextView date = view.findViewById(R.id.date);
+        TextView content = view.findViewById(R.id.content);
+
+        userName.setText(_userName);
+        date.setText(dateFormat.format(_post.getDate()));
+        content.setText(_post.getContent());
+
+        return view;
+    }
+
+    public void AddPost(){
+        Toast.makeText(getApplicationContext(),"Add new post",Toast.LENGTH_SHORT).show();
+        Intent addPost = new Intent(this,AddPostActivity.class);
+        startActivity(addPost);
+    }
+
+    public void ShowProfile(){
+        Toast.makeText(getApplicationContext(),"Show profile",Toast.LENGTH_SHORT).show();
+    }
+
+    public void Logout(){
+        Toast.makeText(getApplicationContext(),"Logout",Toast.LENGTH_SHORT).show();
+        auth.signOut();
+        Intent tmp = new Intent(this,LoginActivity.class);
+        startActivity(tmp);
+    }
+
+    public void Refresh(){
+        Toast.makeText(getApplicationContext(),"Refresh",Toast.LENGTH_SHORT).show();
+    }
+
+    public void Settings(){
+        Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+    }
+    ///<Process method end>
 }

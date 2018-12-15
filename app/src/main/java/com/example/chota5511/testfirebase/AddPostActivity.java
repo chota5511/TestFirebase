@@ -31,20 +31,29 @@ public class AddPostActivity extends AppCompatActivity {
     FirebaseAuth auth = FirebaseAuth.getInstance();
     FirebaseUser user = auth.getCurrentUser();
 
+    //Overridde method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_post);
     }
+    ///<Override method end>
 
+    //Click event
     public void Back(View v){
         finish();
     }
 
     public void AddPost(View v){
         EditText content = findViewById(R.id.et_content);
+        AddPost(user.getUid(),content.getText().toString());
+        finish();
+    }
+    ///<Click event end>
 
-        Post tmp = new Post(user.getUid(),Calendar.getInstance().getTime(),content.getText().toString());
+    //Process method
+    public void AddPost(String _userID, String _content){
+        Post tmp = new Post(_userID, Calendar.getInstance().getTime(), _content);
 
         if(tmp.SaveChange()==true){
             Toast.makeText(getApplicationContext(),"Post success",Toast.LENGTH_SHORT);
@@ -52,7 +61,6 @@ public class AddPostActivity extends AppCompatActivity {
         else {
             Toast.makeText(getApplicationContext(),"Post failed",Toast.LENGTH_SHORT);
         }
-        finish();
     }
-
+    ///<Process method end>
 }

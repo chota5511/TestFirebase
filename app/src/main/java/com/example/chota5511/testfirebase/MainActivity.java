@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity
     Query queryRef = db.getReference().child("post").orderByChild("date").limitToLast(1);
     Query queryUserName;
 
-
     //Override method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +66,13 @@ public class MainActivity extends AppCompatActivity
             Intent login = new Intent(this,LoginActivity.class);
             startActivity(login);
         }else {
+            ImageView headerAvatar = findViewById(R.id.header_avatar);
+            TextView headerName = findViewById(R.id.header_name);
+            TextView headerEmail = findViewById(R.id.header_email);
+
+            headerName.setText(user.getDisplayName());
+            headerEmail.setText(user.getEmail());
+
             postValueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

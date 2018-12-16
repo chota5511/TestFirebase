@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:singleLine="true"/>
     <Button
-        android:id="@+id/signup_button"
+        android:id="@+id/bt_signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Up"

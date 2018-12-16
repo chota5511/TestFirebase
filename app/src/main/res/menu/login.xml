@@ -5,12 +5,10 @@
         android:id="@+id/action_signup"
         android:orderInCategory="0"
         android:title="Sign up"
-        app:showAsAction="never"
-        android:onClick="SignUp"/>
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="Settings"
-        app:showAsAction="never"
-        android:onClick="Setting"/>
+        app:showAsAction="never" />
 </menu>

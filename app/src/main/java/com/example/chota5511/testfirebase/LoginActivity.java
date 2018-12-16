@@ -24,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
 
     FirebaseAuth auth = FirebaseAuth.getInstance();
 
+    //Override method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +33,49 @@ public class LoginActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.login, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        switch (id){
+            case R.id.action_settings:
+                Settings();
+                break;
+            case R.id.action_signup:
+                SignUp();
+                break;
+        }
+
+        return true;
+    }
+    ///<Override method end>
+
+
+    //Clicked event
     public void Login(View v){
         EditText userEmail = findViewById(R.id.user_email);
         EditText password = findViewById(R.id.password);
+
+        Login(userEmail.getText().toString(),password.getText().toString());
+    }
+
+    public void ForgotPassword(View v){
+        ForgotPassword();
+    }
+    ///<Clicked event end>
+
+
+    //Process method
+    public void Login(String _email, String password){
         final Intent mainActivity = new Intent(this,MainActivity.class);
 
-        auth.signInWithEmailAndPassword(userEmail.getText().toString(),password.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        auth.signInWithEmailAndPassword(_email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isComplete() == true){
@@ -53,27 +91,21 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void SignUp(MenuItem mi){
-        Intent tmp = new Intent(this,SignUpActivity.class);
-        startActivity(tmp);
-        Toast.makeText(getApplicationContext(),"Sign up",Toast.LENGTH_SHORT).show();
-    }
-
-    public void Setting(MenuItem mi){
-
-    }
-
-    public void ForgotPassword(View v){
+    public void ForgotPassword(){
         Intent tmp = new Intent(this, MainActivity.class);
 
         startActivity(tmp);
         Toast.makeText(getApplicationContext(),"Forgot password", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.login, menu);
-        return true;
+    public void SignUp(){
+        Intent tmp = new Intent(this,SignUpActivity.class);
+        startActivity(tmp);
+        Toast.makeText(getApplicationContext(),"Sign up",Toast.LENGTH_SHORT).show();
     }
+
+    public void Settings(){
+        Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+    }
+    ///<Process method end>
 }

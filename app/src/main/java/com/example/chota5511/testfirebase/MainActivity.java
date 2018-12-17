@@ -1,9 +1,19 @@
 package com.example.chota5511.testfirebase;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -25,6 +35,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,9 +45,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -45,14 +63,19 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    FirebaseAuth auth = FirebaseAuth.getInstance();
-    FirebaseUser user = auth.getCurrentUser();
-    FirebaseDatabase db = FirebaseDatabase.getInstance();
-    ValueEventListener postValueEventListener;
-    ValueEventListener getUserNameValueEventListener;
-    Query queryRefInitial = db.getReference().child("post").orderByChild("date").limitToLast(20);
-    Query queryRef = db.getReference().child("post").orderByChild("date").limitToLast(1);
-    Query queryUserName;
+    private FirebaseAuth auth = FirebaseAuth.getInstance();
+    private FirebaseUser user = auth.getCurrentUser();
+    private FirebaseDatabase db = FirebaseDatabase.getInstance();
+    private ValueEventListener postValueEventListener;
+    private ValueEventListener getUserNameValueEventListener;
+    private Query queryRefInitial = db.getReference().child("post").orderByChild("date").limitToLast(20);
+    private Query queryRef = db.getReference().child("post").orderByChild("date").limitToLast(1);
+    private Query queryUserName;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageRef = storage.getReference().child("avatar");
+
+
+    public static final int PICK_IMAGE = 1;
 
     //Override method
     @Override
@@ -66,57 +89,7 @@ public class MainActivity extends AppCompatActivity
             Intent login = new Intent(this,LoginActivity.class);
             startActivity(login);
         }else {
-            ImageView headerAvatar = findViewById(R.id.header_avatar);
-            TextView headerName = findViewById(R.id.header_name);
-            TextView headerEmail = findViewById(R.id.header_email);
-
-            headerName.setText(user.getDisplayName());
-            headerEmail.setText(user.getEmail());
-
-            postValueEventListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists() == true){
-                        for (DataSnapshot d: dataSnapshot.getChildren()){
-                            final Post tmpPost = new Post();
-                            tmpPost.setPostID(d.getKey());
-                            tmpPost.setUserUid(d.child("uid").getValue().toString());
-                            tmpPost.setContent(d.child("content").getValue().toString());
-                            tmpPost.setDate(d.child("date").getValue(Date.class));
-
-                            getUserNameValueEventListener = new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    LinearLayout postArea = findViewById(R.id.post_area);
-                                    postArea.addView(PostToPostBox(tmpPost,dataSnapshot.getValue().toString(),postArea),1);
-                                    queryUserName.removeEventListener(getUserNameValueEventListener);   //Remove listener after get user name
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                }
-                            };
-
-                            //Get user name before add to post box
-                            queryUserName = FirebaseDatabase.getInstance().getReference().child("user").child(tmpPost.getUserUid());
-                            queryUserName.addListenerForSingleValueEvent(getUserNameValueEventListener);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            };
-
-            //Initial Post
-            queryRefInitial.addListenerForSingleValueEvent(postValueEventListener);
-            queryRefInitial.removeEventListener(postValueEventListener);            //Remove initial listener event after initial
-
-            //Listener for database change
-            //queryRef.addValueEventListener(postValueEventListener);
+            Init();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -179,6 +152,8 @@ public class MainActivity extends AppCompatActivity
             Settings();
         } else if (id == R.id.nav_message) {
 
+        } else if (id == R.id.nav_change_avatar){
+            ChangeAvatar();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -203,6 +178,36 @@ public class MainActivity extends AppCompatActivity
         }
         return true;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK){
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            View v = navigationView.getHeaderView(0);
+            if (data != null){
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                    storageRef.child(user.getUid()).putStream(inputStream).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(getApplicationContext(),"Upload Success",Toast.LENGTH_SHORT).show();
+                            getUserAvatar();
+                            Toast.makeText(getApplicationContext(),"Avatar Changed",Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
     ///<Override method end>
 
 
@@ -218,6 +223,63 @@ public class MainActivity extends AppCompatActivity
 
 
     //Process method
+    private void Init(){
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        View header = navigationView.getHeaderView(0);
+
+        TextView headerName = header.findViewById(R.id.header_name);
+        TextView headerEmail = header.findViewById(R.id.header_email);
+
+        headerName.setText(user.getDisplayName());
+        headerEmail.setText(user.getEmail());
+
+        //Set user avatar image
+        getUserAvatar();
+
+        postValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() == true){
+                    for (DataSnapshot d: dataSnapshot.getChildren()){
+                        final Post tmpPost = new Post();
+                        tmpPost.setPostID(d.getKey());
+                        tmpPost.setUserUid(d.child("uid").getValue().toString());
+                        tmpPost.setContent(d.child("content").getValue().toString());
+                        tmpPost.setDate(d.child("date").getValue(Date.class));
+
+                        getUserNameValueEventListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                LinearLayout postArea = findViewById(R.id.post_area);
+                                postArea.addView(PostToPostBox(tmpPost,dataSnapshot.getValue().toString(),postArea),1);
+                                queryUserName.removeEventListener(getUserNameValueEventListener);   //Remove listener after get user name
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        };
+
+                        //Get user name before add to post box
+                        queryUserName = FirebaseDatabase.getInstance().getReference().child("user").child(tmpPost.getUserUid());
+                        queryUserName.addListenerForSingleValueEvent(getUserNameValueEventListener);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        //Initial Post
+        queryRefInitial.addListenerForSingleValueEvent(postValueEventListener);
+        queryRefInitial.removeEventListener(postValueEventListener);            //Remove initial listener event after initial
+    }
+
     public View PostToPostBox(Post _post, String _userName,LinearLayout _rootLayout){
         LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.post_box, _rootLayout ,false);
@@ -251,12 +313,59 @@ public class MainActivity extends AppCompatActivity
         startActivity(tmp);
     }
 
+    public void ChangeAvatar(){
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("image/*");
+        startActivityForResult(Intent.createChooser(i, "Select Picture"), PICK_IMAGE);
+    }
+
     public void Refresh(){
         Toast.makeText(getApplicationContext(),"Refresh",Toast.LENGTH_SHORT).show();
     }
 
     public void Settings(){
         Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+    }
+
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
+    }
+
+    public void getUserAvatar(){
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        View header = navigationView.getHeaderView(0);
+        final ImageView headerAvatar = header.findViewById(R.id.header_avatar);
+        storage.getReference().child("avatar/" + user.getUid()).getBytes(1024*1024*5).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bitmap tmp = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(bytes,0,bytes.length),96,96,true);
+                tmp = getCroppedBitmap(tmp);
+                headerAvatar.setImageBitmap(tmp);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     ///<Process method end>
 }

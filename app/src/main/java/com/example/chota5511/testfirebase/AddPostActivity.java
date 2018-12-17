@@ -56,10 +56,10 @@ public class AddPostActivity extends AppCompatActivity {
         Post tmp = new Post(_userID, Calendar.getInstance().getTime(), _content);
 
         if(tmp.SaveChange()==true){
-            Toast.makeText(getApplicationContext(),"Post success",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"Post success",Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(getApplicationContext(),"Post failed",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"Post failed",Toast.LENGTH_SHORT).show();
         }
     }
     ///<Process method end>

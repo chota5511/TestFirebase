@@ -242,16 +242,27 @@ public class MainActivity extends AppCompatActivity
                 if (dataSnapshot.exists() == true){
                     for (DataSnapshot d: dataSnapshot.getChildren()){
                         final Post tmpPost = new Post();
-                        tmpPost.setPostID(d.getKey());
-                        tmpPost.setUserUid(d.child("uid").getValue().toString());
-                        tmpPost.setContent(d.child("content").getValue().toString());
-                        tmpPost.setDate(d.child("date").getValue(Date.class));
+                        try{
+                            tmpPost.setPostID(d.getKey());
+                            tmpPost.setUserUid(d.child("uid").getValue().toString());
+                            tmpPost.setContent(d.child("content").getValue().toString());
+                            tmpPost.setDate(d.child("date").getValue(Date.class));
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
 
                         getUserNameValueEventListener = new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 LinearLayout postArea = findViewById(R.id.post_area);
-                                postArea.addView(PostToPostBox(tmpPost,dataSnapshot.getValue().toString(),postArea),1);
+                                if(tmpPost.getContent().isEmpty() == false &&
+                                        tmpPost.getPostID().isEmpty() == false &&
+                                        tmpPost.getDate() != null &&
+                                        tmpPost.getUserUid().isEmpty() == false){
+
+                                    postArea.addView(PostToPostBox(tmpPost,dataSnapshot.getValue().toString(),postArea),1);
+                                }
                                 queryUserName.removeEventListener(getUserNameValueEventListener);   //Remove listener after get user name
                             }
 
